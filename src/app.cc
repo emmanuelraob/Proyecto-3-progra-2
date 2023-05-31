@@ -104,12 +104,15 @@ void app::run(){
     // Render
 
     vector<vector<vector<int>>> int_image (image_height, vector<vector<int>>(image_width,vector<int> (3,0)));
+    unsigned int n = std::thread::hardware_concurrency();
+    //n=4;
+    cerr << "numero de nucleos " << n << endl;
+    int number_lines = (int) (image_height/n);
+    int remaining_lines = number_lines*n-1;
 
-    int remaining_lines = image_height;
     mutex mtx;
     
     auto work = [=,&mtx,&remaining_lines,&int_image](int begin, int end){ 
-
         for (int j = begin; j < end; ++j){
             mtx.lock();
             std::cerr << "\rScanlines remaining: " << remaining_lines << ' ' << flush; 
@@ -121,9 +124,9 @@ void app::run(){
                 for (int s = 0; s < samples_per_pixel; ++s) {
                     alignas(32) double u = (i + random_double()) / (image_width-1);
                     alignas(32) double v = (j + random_double()) / (image_height-1);
-                    mtx.lock();
                     ray r = cam.get_ray(u, v);
-                    pixel_color += ray_color(r, world, max_depth);
+                    mtx.lock();
+                    pixel_color += ray_color(r, world, max_depth);//////////////////////////////////////////////
                     mtx.unlock();
                 }
                 auto scale = 1.0 / samples_per_pixel;
@@ -134,22 +137,12 @@ void app::run(){
         }
     };
 
-
-    
-
-
     std::cout << "P3\n" << image_width << ' ' << image_height << "\n255\n";
-
-    unsigned int n = std::thread::hardware_concurrency();
-    //n=7;
-    cerr << "numero de nucleos " << n << endl;
-    int number_lines = (int) (image_height/n);
 
     vector <thread> threads;
 
     for (int k=0; k<n ; k++) {
         threads.push_back(thread(work,k*number_lines,(k+1)*number_lines));
-        
     }
     for(auto& thread : threads) {
         thread.join();
