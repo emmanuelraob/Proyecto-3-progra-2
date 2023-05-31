@@ -2,6 +2,7 @@
 #define RAY_HH
 
 #include <vec3.hh>
+#include <immintrin.h>
 
 class ray {
     public:

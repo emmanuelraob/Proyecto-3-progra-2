@@ -1,4 +1,6 @@
 #include <app.hh>
+#include <thread>
+
 
 using namespace std;
 
@@ -101,29 +103,75 @@ void app::run(){
 
     // Render
 
+    vector<vector<vector<int>>> int_image (image_height, vector<vector<int>>(image_width,vector<int> (3,0)));
+
+    int remaining_lines = image_height;
+    mutex mtx;
+    
+    auto work = [=,&mtx,&remaining_lines,&int_image](int begin, int end){ 
+
+        for (int j = begin; j < end; ++j){
+            mtx.lock();
+            std::cerr << "\rScanlines remaining: " << remaining_lines << ' ' << flush; 
+            remaining_lines-=1;
+            mtx.unlock();
+
+            for (int i = 0; i < image_width; ++i) {
+                color pixel_color(0, 0, 0);
+                for (int s = 0; s < samples_per_pixel; ++s) {
+                    alignas(32) double u = (i + random_double()) / (image_width-1);
+                    alignas(32) double v = (j + random_double()) / (image_height-1);
+                    mtx.lock();
+                    ray r = cam.get_ray(u, v);
+                    pixel_color += ray_color(r, world, max_depth);
+                    mtx.unlock();
+                }
+                auto scale = 1.0 / samples_per_pixel;
+                int_image[j][i][0] = static_cast<int>(256 * clamp(sqrt(scale * pixel_color[0]), 0.0, 0.999));
+                int_image[j][i][1] = static_cast<int>(256 * clamp(sqrt(scale * pixel_color[1]), 0.0, 0.999));
+                int_image[j][i][2] = static_cast<int>(256 * clamp(sqrt(scale * pixel_color[2]), 0.0, 0.999));
+            }
+        }
+    };
+
+
+    
+
+
     std::cout << "P3\n" << image_width << ' ' << image_height << "\n255\n";
 
-    for (int j = image_height-1; j >= 0; --j) {
-        std::cerr << "\rScanlines remaining: " << j << ' ' << std::flush;
-        for (int i = 0; i < image_width; ++i) {
-            color pixel_color(0, 0, 0);
-            for (int s = 0; s < samples_per_pixel; ++s) {
-                auto u = (i + random_double()) / (image_width-1);
-                auto v = (j + random_double()) / (image_height-1);
-                ray r = cam.get_ray(u, v);
-                pixel_color += ray_color(r, world, max_depth);
-            }
-            write_color(std::cout, pixel_color, samples_per_pixel);
+    unsigned int n = std::thread::hardware_concurrency();
+    //n=7;
+    cerr << "numero de nucleos " << n << endl;
+    int number_lines = (int) (image_height/n);
+
+    vector <thread> threads;
+
+    for (int k=0; k<n ; k++) {
+        threads.push_back(thread(work,k*number_lines,(k+1)*number_lines));
+        
+    }
+    for(auto& thread : threads) {
+        thread.join();
+    }
+    
+    for (int i = image_height-1; i >= 0; i--){
+        for (int j = 0; j < image_width; j++) {
+            int r = int_image[i][j][0];
+            int g = int_image[i][j][1];
+            int b = int_image[i][j][2];
+            write_color(std::cout, r,g,b);
         }
     }
-
+    
     std::cerr << "\nDone.\n";
-
     //time stop  
     auto stop = std::chrono::high_resolution_clock::now(); 
     std::chrono::duration<double> duration = stop - start;
     cerr << "Time taken by program: " 
-              << std::fixed << std::setprecision(4) << duration.count() 
-              << " seconds" << std::endl;
+            << std::fixed << std::setprecision(4) << duration.count() 
+            << " seconds" << std::endl;
 
 }
+
+

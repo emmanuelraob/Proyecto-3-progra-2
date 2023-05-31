@@ -6,6 +6,7 @@
 #include <vec3.hh>
 #include <ray.hh>
 #include <hittable.hh>
+#include <immintrin.h>
 
 
 struct hit_record;

@@ -4,6 +4,7 @@
 #include <ray.hh>
 #include <rtweekend.hh>
 #include <vec3.hh>
+#include <immintrin.h>
 
 class material;
 

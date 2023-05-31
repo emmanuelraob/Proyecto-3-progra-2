@@ -2,6 +2,7 @@
 #define CAMERA_HH
 
 #include <ray.hh>
+#include <immintrin.h>
 
 class camera {
     public:

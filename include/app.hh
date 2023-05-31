@@ -2,12 +2,15 @@
 #define APP_HH
 
 
+
 #include <rtweekend.hh>
 #include <color.hh>
 #include <hittable_list.hh>
 #include <sphere.hh>
 #include <camera.hh>
 #include <material.hh>
+#include <mutex>
+#include <immintrin.h>
 
 #include <iostream>
 #include <chrono> //estas dos se usan para saber el tiempo 

@@ -3,6 +3,7 @@
 
 #include <hittable.hh>
 #include <vec3.hh>
+#include <immintrin.h>
 
 class sphere : public hittable {
 public:

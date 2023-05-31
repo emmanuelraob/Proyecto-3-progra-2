@@ -5,6 +5,8 @@
 #include <limits>
 #include <memory>
 #include <cstdlib>
+#include <immintrin.h>
+
 
 // Usings
 

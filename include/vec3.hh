@@ -4,6 +4,7 @@
 #include <cmath>
 #include <iostream>
 #include <rtweekend.hh>
+#include <immintrin.h>
 
 using std::sqrt;
 
@@ -77,7 +78,15 @@ inline std::ostream& operator<<(std::ostream &out, const vec3 &v) {
 inline vec3 operator+(const vec3 &u, const vec3 &v) {
     return vec3(u.e[0] + v.e[0], u.e[1] + v.e[1], u.e[2] + v.e[2]);
 }
-
+/*
+inline vec3 operator+(const vec3 &u, const vec3 &v) {
+    __m256d u_vec = _mm256_load_pd(u.e);
+    __m256d v_vec = _mm256_load_pd(v.e);
+    __m256d result_vec = _mm256_add_pd(u_vec, v_vec);
+    double result[4];
+    _mm256_store_pd(result, result_vec);
+    return vec3(result[0], result[1], result[2]);
+}*/
 inline vec3 operator-(const vec3 &u, const vec3 &v) {
     return vec3(u.e[0] - v.e[0], u.e[1] - v.e[1], u.e[2] - v.e[2]);
 }

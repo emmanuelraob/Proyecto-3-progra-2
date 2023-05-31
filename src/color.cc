@@ -16,3 +16,8 @@ void write_color(std::ostream &out, color pixel_color, int samples_per_pixel) {
       << static_cast<int>(256 * clamp(g, 0.0, 0.999)) << ' '
       << static_cast<int>(256 * clamp(b, 0.0, 0.999)) << '\n';
 }
+void write_color(std::ostream &out,int r, int g, int b){
+  out << r << ' '
+      << g << ' '
+      << b << '\n';
+}
