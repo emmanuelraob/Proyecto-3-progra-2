@@ -75,7 +75,7 @@ inline std::ostream& operator<<(std::ostream &out, const vec3 &v) {
     return out << v.e[0] << ' ' << v.e[1] << ' ' << v.e[2];
 }
 
-/*
+/*Original
 inline vec3 operator+(const vec3 &u, const vec3 &v) {
     return vec3(u.e[0] + v.e[0], u.e[1] + v.e[1], u.e[2] + v.e[2]);
 }*/
@@ -83,29 +83,35 @@ inline vec3 operator+(const vec3 &u, const vec3 &v) {
 //Keylor
 //Mejora en 0.20 el tiempo
 inline vec3 operator+(const vec3 &u, const vec3 &v) {
-    __m128d u_vec = _mm_loadu_pd(u.e);
-    __m128d v_vec = _mm_loadu_pd(v.e);
-    __m128d result_vec = _mm_add_pd(u_vec, v_vec);
+    __m128d u_ = _mm_loadu_pd(u.e);
+    __m128d v_ = _mm_loadu_pd(v.e);
+	
+    __m128d add_result = _mm_add_pd(u_, v_);
+	
     double result[2];
-    _mm_storeu_pd(result, result_vec);
+    _mm_storeu_pd(result, add_result);
+	
     return vec3(result[0], result[1], u.e[2] + v.e[2]);
 }
 
-/*
+/*Original
 inline vec3 operator-(const vec3 &u, const vec3 &v) {
     return vec3(u.e[0] - v.e[0], u.e[1] - v.e[1], u.e[2] - v.e[2]);
 }*/
-
 //Keylor
 inline vec3 operator-(const vec3 &u, const vec3 &v){
-	__m128d u_vec = _mm_loadu_pd(u.e);
-    __m128d v_vec = _mm_loadu_pd(v.e);
-    __m128d result_vec = _mm_sub_pd(u_vec, v_vec);
+	__m128d u_ = _mm_loadu_pd(u.e);
+    __m128d v_ = _mm_loadu_pd(v.e);
+	
+    __m128d sub_result = _mm_sub_pd(u_, v_);
+	
     double result[2];
-    _mm_storeu_pd(result, result_vec);
+    _mm_storeu_pd(result, sub_result);
+	
     return vec3(result[0], result[1], u.e[2] - v.e[2]);
 }
-/*
+
+/*Original
 inline vec3 operator*(const vec3 &u, const vec3 &v) {
     return vec3(u.e[0] * v.e[0], u.e[1] * v.e[1], u.e[2] * v.e[2]);
 }*/
@@ -113,11 +119,14 @@ inline vec3 operator*(const vec3 &u, const vec3 &v) {
 //Keylor
 //Es mejor dejar la funcion original, la SIMD lo hace más lento
 inline vec3 operator*(const vec3 &u, const vec3 &v) {
-	__m128d u_vec = _mm_loadu_pd(u.e);
-    __m128d v_vec = _mm_loadu_pd(v.e);
-    __m128d result_vec = _mm_mul_pd(u_vec, v_vec);
+	__m128d u_ = _mm_loadu_pd(u.e);
+    __m128d v_ = _mm_loadu_pd(v.e);
+	
+    __m128d mul_result = _mm_mul_pd(u_, v_);
+	
     double result[2];
-    _mm_storeu_pd(result, result_vec);
+    _mm_storeu_pd(result, mul_result);
+	
     return vec3(result[0], result[1], u.e[2] * v.e[2]);
 }
 
@@ -126,7 +135,7 @@ inline vec3 operator*(const vec3 &u, const vec3 &v) {
 inline vec3 operator*(double t, const vec3 &v) {
     return vec3(t*v.e[0], t*v.e[1], t*v.e[2]);
 }
-/*
+/*La funcion en SIMD
 inline vec3 operator*(double t, const vec3 &v){
 	__m128d t_val = _mm_loadu_pd(&t);
     __m128d v_vec = _mm_loadu_pd(v.e);
@@ -145,16 +154,56 @@ inline vec3 operator/(vec3 v, double t) {
     return (1/t) * v;
 }
 
+/*Original
 inline double dot(const vec3 &u, const vec3 &v) {
     return u.e[0] * v.e[0]
          + u.e[1] * v.e[1]
          + u.e[2] * v.e[2];
+}*/
+//Keylor
+inline double dot(const vec3 &u, const vec3 &v){
+	__m128d u_ = _mm_loadu_pd(u.e);
+    __m128d v_ = _mm_loadu_pd(v.e);
+	
+    __m128d mul_result = _mm_mul_pd(u_, v_);
+    __m128d add_result = _mm_hadd_pd(mul_result, mul_result);
+	
+    double result;
+    _mm_store_sd(&result, add_result);
+	
+    return result + u.e[2] * v.e[2];
 }
 
+/*
 inline vec3 cross(const vec3 &u, const vec3 &v) {
     return vec3(u.e[1] * v.e[2] - u.e[2] * v.e[1],
                 u.e[2] * v.e[0] - u.e[0] * v.e[2],
                 u.e[0] * v.e[1] - u.e[1] * v.e[0]);
+}*/
+//Keylor
+inline vec3 cross(const vec3 &u, const vec3 &v) {
+    __m256d u_0 = _mm256_set1_pd(u.e[0]); 
+    __m256d u_1 = _mm256_set1_pd(u.e[1]); 
+    __m256d u_2 = _mm256_set1_pd(u.e[2]); 
+
+    __m256d v_0 = _mm256_set1_pd(v.e[0]); 
+    __m256d v_1 = _mm256_set1_pd(v.e[1]);
+    __m256d v_2 = _mm256_set1_pd(v.e[2]);
+
+    __m256d result_x = _mm256_sub_pd(_mm256_mul_pd(u_1, v_2), _mm256_mul_pd(u_2, v_1));
+    __m256d result_y = _mm256_sub_pd(_mm256_mul_pd(u_2, v_0), _mm256_mul_pd(u_0, v_2));
+    __m256d result_z = _mm256_sub_pd(_mm256_mul_pd(u_0, v_1), _mm256_mul_pd(u_1, v_0));
+
+    __m128d result_xy = _mm256_extractf128_pd(result_x, 1);
+    __m128d result_zw = _mm256_extractf128_pd(result_z, 1);
+    __m128d result_yx = _mm256_castpd256_pd128(result_y);
+
+    vec3 result;
+    _mm_storeu_pd(result.e, _mm_unpacklo_pd(result_xy, result_yx));
+    _mm_store_sd(&result.e[2], result_zw);
+	std::cout << result << std::endl;
+
+    return result;
 }
 
 inline vec3 unit_vector(vec3 v) {

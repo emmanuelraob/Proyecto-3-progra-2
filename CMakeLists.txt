@@ -7,7 +7,7 @@ set(CMAKE_BUILD_TYPE Debug) # Remove this line if you already have a build type 
 
 if(CMAKE_COMPILER_IS_GNUCXX)
     message("Adding code coverage flags")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mavx -fprofile-arcs -ftest-coverage")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mavx -mavx2 -fprofile-arcs -ftest-coverage")
 endif()
 
 include_directories(${RayTracer_SOURCE_DIR}/include)
