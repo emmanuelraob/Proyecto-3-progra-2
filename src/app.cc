@@ -1,4 +1,9 @@
 #include <app.hh>
+#include <vector>
+#include <thread>
+#include <mutex>
+#include <future>
+
 
 using namespace std;
 
@@ -29,9 +34,9 @@ hittable_list app::random_scene(){
 
     auto ground_material = make_shared<lambertian>(color(0.5, 0.5, 0.5));
     world.add(make_shared<sphere>(point3(0,-1000,0), 1000, ground_material));
-    /*
-    for (int a = -7; a < 7; a++) {
-        for (int b = -7; b < 7; b++) {
+    
+    for (int a = -3; a < 3; a++) {
+        for (int b = -3; b < 3; b++) {
             auto choose_mat = random_double();
             point3 center(a + 0.9*random_double(), 0.2, b + 0.9*random_double());
 
@@ -57,7 +62,7 @@ hittable_list app::random_scene(){
             }
         }
     }
-    */
+    
 
     auto material1 = make_shared<dielectric>(1.5);
     world.add(make_shared<sphere>(point3(0, 1, 0), 1.0, material1));
@@ -98,32 +103,62 @@ void app::run(){
 
     camera cam(lookfrom, lookat, vup, 20, aspect_ratio, aperture, dist_to_focus);
     
-
     // Render
+	std::cout << "P3\n" << image_width << ' ' << image_height << "\n255\n";
 
-    std::cout << "P3\n" << image_width << ' ' << image_height << "\n255\n";
 
-    for (int j = image_height-1; j >= 0; --j) {
-        std::cerr << "\rScanlines remaining: " << j << ' ' << std::flush;
-        for (int i = 0; i < image_width; ++i) {
-            color pixel_color(0, 0, 0);
-            for (int s = 0; s < samples_per_pixel; ++s) {
-                auto u = (i + random_double()) / (image_width-1);
-                auto v = (j + random_double()) / (image_height-1);
-                ray r = cam.get_ray(u, v);
-                pixel_color += ray_color(r, world, max_depth);
-            }
-            write_color(std::cout, pixel_color, samples_per_pixel);
-        }
-    }
+    // Thread tools <start>
+    int nThreads = std::thread::hardware_concurrency();
+	std::mutex mutex;
+	std::vector<std::thread> threads;
+    std::vector<std::promise<color>> promises;
+    std::vector<std::future<color>> futures;
+    // Thread tools <end>
+		
+		
+	for (int j = image_height-1; j >= 0; --j) {
+		int thread_counter = 0;
+		std::cerr << "\rScanlines remaining: " << j << ' ' << std::flush;
+		for (int i = 0; i < image_width; ++i) {
+			color pixel_color(0, 0, 0);
+			for (int s = 0; s < samples_per_pixel; ++s) {
+				auto u = (i + random_double()) / (image_width-1);
+				auto v = (j + random_double()) / (image_height-1);
+				ray r = cam.get_ray(u, v);
+				//
+					while(thread_counter < nThreads){
+						promises.emplace_back();
+						futures.emplace_back(promises[i].get_future());
 
-    std::cerr << "\nDone.\n";
+						threads.emplace_back([&promise = promises[i], r, world, max_depth]() {
+							color result = ray_color(r, world, max_depth);
+							promise.set_value(result);
+						});
+					}
+					if(thread_counter == nThreads || i == image_width){
+						for (auto& thread : threads) {
+							thread.join();
+						}
 
-    //time stop  
-    auto stop = std::chrono::high_resolution_clock::now(); 
-    std::chrono::duration<double> duration = stop - start;
-    cerr << "Time taken by program: " 
-              << std::fixed << std::setprecision(4) << duration.count() 
-              << " seconds" << std::endl;
+						// Retrieve the return values
+						for (int i = 0; i < thread_counter; ++i) {
+							pixel_color += futures[i].get();
+						}
+						futures.clear();
+						promises.clear();
+						threads.clear();
+					}
+			}
+			write_color(std::cout, pixel_color, samples_per_pixel);
+		}
+	}
 
+	std::cerr << "\nDone.\n";
+
+	//time stop  
+	auto stop = std::chrono::high_resolution_clock::now(); 
+	std::chrono::duration<double> duration = stop - start;
+	cerr << "Time taken by program: " 
+		 << std::fixed << std::setprecision(4) << duration.count() 
+		 << " seconds" << std::endl;
 }
