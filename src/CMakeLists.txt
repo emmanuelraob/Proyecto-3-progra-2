@@ -2,7 +2,6 @@ set(HEADER_LIST "${RayTracer_SOURCE_DIR}/include/*.hh")
 
 add_executable(RayTracer
     main.cc
-    app.cc
     rtweekend.cc
     vec3.cc
     ray.cc
