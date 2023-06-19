@@ -11,11 +11,16 @@ public:
 
   virtual bool hit(const ray &r, double t_min, double t_max,
                    hit_record &rec) const override;
+              
+  virtual point3 get_center() const override;
+
+  virtual void set_closest_point(point3 point) override;
 
 public:
   point3 center;
   double radius;
   shared_ptr<material> mat_ptr;
+  point3 closest_point_camera;
 };
 
 #endif

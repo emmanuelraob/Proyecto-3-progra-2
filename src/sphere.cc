@@ -31,3 +31,11 @@ bool sphere::hit(const ray &r, double t_min, double t_max,
 
   return true;
 }
+
+point3 sphere::get_center() const{
+  return center;
+}
+
+void sphere::set_closest_point(point3 point){
+  closest_point_camera = point;
+}
