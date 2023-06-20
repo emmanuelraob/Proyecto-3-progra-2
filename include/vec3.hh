@@ -99,8 +99,7 @@ inline vec3 operator/(vec3 v, double t) {
     return (1/t) * v;
 }
 
-inline double dot(const vec3 &u, const vec3 &v) {
-
+inline double dot(const vec3 &u, const vec3 &v){
     __m256d vec1 = _mm256_loadu_pd(u.e);
     __m256d vec2 = _mm256_loadu_pd(v.e);
 
@@ -113,9 +112,27 @@ inline double dot(const vec3 &u, const vec3 &v) {
 }
 
 inline vec3 cross(const vec3 &u, const vec3 &v) {
-    return vec3(u.e[1] * v.e[2] - u.e[2] * v.e[1],
-                u.e[2] * v.e[0] - u.e[0] * v.e[2],
-                u.e[0] * v.e[1] - u.e[1] * v.e[0]);
+    __m256d u_0 = _mm256_set1_pd(u.e[0]); 
+    __m256d u_1 = _mm256_set1_pd(u.e[1]); 
+    __m256d u_2 = _mm256_set1_pd(u.e[2]); 
+
+    __m256d v_0 = _mm256_set1_pd(v.e[0]); 
+    __m256d v_1 = _mm256_set1_pd(v.e[1]);
+    __m256d v_2 = _mm256_set1_pd(v.e[2]);
+
+    __m256d result_x = _mm256_sub_pd(_mm256_mul_pd(u_1, v_2), _mm256_mul_pd(u_2, v_1));
+    __m256d result_y = _mm256_sub_pd(_mm256_mul_pd(u_2, v_0), _mm256_mul_pd(u_0, v_2));
+    __m256d result_z = _mm256_sub_pd(_mm256_mul_pd(u_0, v_1), _mm256_mul_pd(u_1, v_0));
+
+    __m128d result_xy = _mm256_extractf128_pd(result_x, 1);
+    __m128d result_zw = _mm256_extractf128_pd(result_z, 1);
+    __m128d result_yx = _mm256_castpd256_pd128(result_y);
+
+    vec3 result;
+    _mm_storeu_pd(result.e, _mm_unpacklo_pd(result_xy, result_yx));
+    _mm_store_sd(&result.e[2], result_zw);
+
+    return result;
 }
 
 inline vec3 unit_vector(vec3 v) {
