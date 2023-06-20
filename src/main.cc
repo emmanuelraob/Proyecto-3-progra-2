@@ -44,7 +44,7 @@ hittable_list random_scene(){
     auto ground_material = make_shared<lambertian>(color(0.5, 0.5, 0.5));
     world.add(make_shared<sphere>(point3(0,-1000,0), 1000, ground_material));
     
-    for (int a = -3; a < 3; a++) {
+    /*for (int a = -3; a < 3; a++) {
         for (int b = -3; b < 3; b++) {
             auto choose_mat = random_double();
             point3 center(a + 0.9*random_double(), 0.2, b + 0.9*random_double());
@@ -71,7 +71,7 @@ hittable_list random_scene(){
             }
         }
     }
-    
+    **/
 
     auto material1 = make_shared<dielectric>(1.5);
     world.add(make_shared<sphere>(point3(0, 1, 0), 1.0, material1));
@@ -118,14 +118,11 @@ int main(){
 
     // Thread tools <start>
     int numThreads = std::thread::hardware_concurrency();
-    if(numThreads > 4){
-		numThreads = 4;
-	}
-	std::vector<std::thread> threads;
+    //std::vector<std::thread> threads;
     std::vector<std::future<color>> futures;
     // Thread tools <end>
 		
-		
+	std::cerr << "cores" << numThreads << std::endl;
 	for (int j = image_height-1; j >= 0; --j) {
 		std::cerr << "\rScanlines remaining: " << j << ' ' << std::flush;
 		for (int i = 0; i < image_width; ++i) {
@@ -133,7 +130,8 @@ int main(){
 			int s = 0;
 			while (s < samples_per_pixel) {
 				int numThreadsUsed = 0;
-				if (numThreadsUsed < numThreads && s < samples_per_pixel) {
+				while (numThreadsUsed < numThreads && s < samples_per_pixel){
+				
 					auto u = (i + random_double()) / (image_width-1);
 					auto v = (j + random_double()) / (image_height-1);
 					ray r = cam.get_ray(u, v);
@@ -141,42 +139,11 @@ int main(){
 					++numThreadsUsed;
 					++s;
 				}
-				if (numThreadsUsed < numThreads && s < samples_per_pixel) {
-					auto u = (i + random_double()) / (image_width-1);
-					auto v = (j + random_double()) / (image_height-1);
-					ray r = cam.get_ray(u, v);
-					futures.push_back(std::async(std::launch::async, ray_color, r, world, max_depth));
-					++numThreadsUsed;
-					++s;
+				for (auto& future : futures) {
+					pixel_color += future.get();
 				}
-				if (numThreadsUsed < numThreads && s < samples_per_pixel) {
-					auto u = (i + random_double()) / (image_width-1);
-					auto v = (j + random_double()) / (image_height-1);
-					ray r = cam.get_ray(u, v);
-					futures.push_back(std::async(std::launch::async, ray_color, r, world, max_depth));
-					++numThreadsUsed;
-					++s;
-				}
-				if (numThreadsUsed < numThreads && s < samples_per_pixel) {
-					auto u = (i + random_double()) / (image_width-1);
-					auto v = (j + random_double()) / (image_height-1);
-					ray r = cam.get_ray(u, v);
-					futures.push_back(std::async(std::launch::async, ray_color, r, world, max_depth));
-					++numThreadsUsed;
-					++s;
-				}
-				if (numThreadsUsed == numThreads || s == samples_per_pixel) {
-					for (auto& future : futures) {
-						pixel_color += future.get();
-					}
-					futures.clear();
-					numThreadsUsed = 0;
-
-					for (auto& thread : threads) {
-						thread.join();
-					}
-					threads.clear();
-				}
+				futures.clear();
+				numThreadsUsed = 0;
 			}
 			write_color(std::cout, pixel_color, samples_per_pixel);
 		}
