@@ -104,14 +104,16 @@ void app::run(){
     // Render
 
     vector<vector<vector<int>>> int_image (image_height, vector<vector<int>>(image_width,vector<int> (3,0)));
-    unsigned int n = std::thread::hardware_concurrency();
+    int n = std::thread::hardware_concurrency();
     //n=4;
     cerr << "numero de nucleos " << n << endl;
     int number_lines = (int) (image_height/n);
     int remaining_lines = number_lines*n-1;
 
     mutex mtx;
+
     
+
     auto work = [=,&mtx,&remaining_lines,&int_image](int begin, int end){ 
         for (int j = begin; j < end; ++j){
             mtx.lock();
@@ -120,19 +122,21 @@ void app::run(){
             mtx.unlock();
 
             for (int i = 0; i < image_width; ++i) {
-                color pixel_color(0, 0, 0);
+                color pixel_color(0, 0, 0); 
                 for (int s = 0; s < samples_per_pixel; ++s) {
                     alignas(32) double u = (i + random_double()) / (image_width-1);
                     alignas(32) double v = (j + random_double()) / (image_height-1);
                     ray r = cam.get_ray(u, v);
-                    mtx.lock();
-                    pixel_color += ray_color(r, world, max_depth);//////////////////////////////////////////////
-                    mtx.unlock();
+                    //mtx.lock();
+                    //pixel_color *= 5; 
+                    pixel_color += ray_color(r, world, max_depth);
+                    //mtx.unlock();
                 }
                 auto scale = 1.0 / samples_per_pixel;
                 int_image[j][i][0] = static_cast<int>(256 * clamp(sqrt(scale * pixel_color[0]), 0.0, 0.999));
                 int_image[j][i][1] = static_cast<int>(256 * clamp(sqrt(scale * pixel_color[1]), 0.0, 0.999));
                 int_image[j][i][2] = static_cast<int>(256 * clamp(sqrt(scale * pixel_color[2]), 0.0, 0.999));
+                
             }
         }
     };
