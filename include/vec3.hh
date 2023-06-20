@@ -75,8 +75,17 @@ inline std::ostream& operator<<(std::ostream &out, const vec3 &v) {
     return out << v.e[0] << ' ' << v.e[1] << ' ' << v.e[2];
 }
 
+
 inline vec3 operator+(const vec3 &u, const vec3 &v) {
-    return vec3(u.e[0] + v.e[0], u.e[1] + v.e[1], u.e[2] + v.e[2]);
+	__m256d vec1 = _mm256_loadu_pd(u.e);
+    __m256d vec2 = _mm256_loadu_pd(v.e);
+
+    __m256d result = _mm256_add_pd(vec1, vec2);
+    
+    double res[4];
+    _mm256_storeu_pd(res, result);
+
+    return vec3(res[0], res[1], res[2]);
 }
 
 inline vec3 operator-(const vec3 &u, const vec3 &v) {
