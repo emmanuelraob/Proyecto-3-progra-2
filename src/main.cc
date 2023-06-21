@@ -1,14 +1,13 @@
 #include <camera.hh>
+#include <chrono>
 #include <color.hh>
+#include <future>
 #include <hittable_list.hh>
+#include <iomanip>
+#include <iostream>
 #include <material.hh>
 #include <rtweekend.hh>
 #include <sphere.hh>
-
-#include <chrono>
-#include <future>
-#include <iomanip>
-#include <iostream>
 #include <vector>
 
 using namespace std;
@@ -30,6 +29,7 @@ color ray_color(const ray &r, const hittable &world, int depth) {
 
   vec3 unit_direction = unit_vector(r.direction());
   auto t = 0.5 * (unit_direction.y() + 1.0);
+
   return (1.0 - t) * color(1.0, 1.0, 1.0) + t * color(0.5, 0.7, 1.0);
 }
 
