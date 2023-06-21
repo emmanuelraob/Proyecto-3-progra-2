@@ -12,3 +12,4 @@ endif()
 
 include_directories(${RayTracer_SOURCE_DIR}/include)
 add_subdirectory(src)
+add_subdirectory(tests)
