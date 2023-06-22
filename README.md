@@ -2,7 +2,7 @@ Pasos para correr el programa
 
 Es necesario tener instalados los drivers, poseer un atarjeta de nvidia, tener el sdk y el compilador nvcc
 
-nvcc -O3 main.cu -o output
+nvcc main.cu -o output
 ./output > image.ppm
 
 Resultados 
