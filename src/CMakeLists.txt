@@ -15,4 +15,3 @@ add_executable(RayTracer
 )
 
 target_include_directories(RayTracer PUBLIC ../include)
-
