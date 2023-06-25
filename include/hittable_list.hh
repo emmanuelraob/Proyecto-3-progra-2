@@ -20,9 +20,13 @@ class hittable_list : public hittable {
 
         virtual bool hit(const ray& r, double t_min, double t_max, hit_record& rec) const override;
 
-        virtual hittable* biggerSphere(vector<hittable*> esferas, int dimension) = 0;
+        point3 get_center() const;
 
-        virtual hittable* smallerSphere(vector<hittable*> esferas, int dimension) = 0;
+        void set_closest_point(point3 point);
+        
+        hittable* biggerSphere(vector<hittable*> esferas, int dimension);
+
+        hittable* smallerSphere(vector<hittable*> esferas, int dimension);
 
     public:
         std::vector<shared_ptr<hittable>> objects;

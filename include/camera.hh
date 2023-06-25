@@ -2,7 +2,8 @@
 #define CAMERA_HH
 
 #include <ray.hh>
-#include <hittable.hh>
+#include <hittable_list.hh>
+
 
 class camera {
     public:
@@ -50,16 +51,15 @@ class camera {
         vec3 vertical;
         vec3 u, v, w;
         double lens_radius;
+
+        void get_closest_points_from_camera(camera& c, hittable_list& hl){
+            hit_record rec;
+            ray r;
+            for (const auto& object : hl.objects) {
+                r = ray(c.origin, object -> get_center() - c.origin);
+                object->hit(r, 0.001, infinity, rec);
+                object->set_closest_point(rec.p); 
+            }
+        }
 };
-
-void get_closest_points_from_camera(camera& c, hittable_list& hl){
-    hit_record rec;
-    ray r;
-    for (const auto& object : hl.objects) {
-        r = ray(c.origin, object -> get_center() - c.origin);
-        object->hit(r, 0.001, infinity, rec);
-        object->set_closest_point(rec.p); 
-    }
-}
-
 #endif
