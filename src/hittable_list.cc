@@ -55,3 +55,7 @@ hittable* hittable_list::smallerSphere(vector<hittable*> esferas, int dimension)
     }
     return smallerS;
 }
+
+point3 hittable_list::get_center() const{return point3(0,0,0);}
+
+void hittable_list::set_closest_point(point3 point){}
