@@ -35,3 +35,23 @@ bool hittable_list::hit(const ray& r, double t_min, double t_max, hit_record& re
 
     return hit_anything;
 }
+
+hittable* hittable_list::biggerSphere(vector<hittable*> esferas, int dimension){
+    hittable* biggerS = esferas[0];
+    for (int i = 1; i < esferas.size(); i++){
+        if (esferas[i]->get_center()[dimension] > biggerS->get_center()[dimension]){
+            biggerS = esferas[i];
+       }
+    }
+    return biggerS;
+}
+
+hittable* hittable_list::smallerSphere(vector<hittable*> esferas, int dimension){
+    hittable* smallerS = esferas[0];
+    for (int i = 1; i < esferas.size(); i++){
+        if (esferas[i]->get_center()[dimension] < smallerS->get_center()[dimension]){
+            smallerS = esferas[i];
+        }
+    }
+    return smallerS;
+}
