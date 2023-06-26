@@ -2,10 +2,11 @@
 #define HITTABLE_LIST_HH
 
 #include <hittable.hh>
-
+#include <sphere.hh>
 #include <memory>
 #include <vector>
 
+using std::vector;
 using std::shared_ptr;
 using std::make_shared;
 
@@ -18,6 +19,14 @@ class hittable_list : public hittable {
         void add(shared_ptr<hittable> object);
 
         virtual bool hit(const ray& r, double t_min, double t_max, hit_record& rec) const override;
+
+        point3 get_center() const;
+
+        void set_closest_point(point3 point);
+        
+        hittable* biggerSphere(vector<hittable*> esferas, int dimension);
+
+        hittable* smallerSphere(vector<hittable*> esferas, int dimension);
 
     public:
         std::vector<shared_ptr<hittable>> objects;
