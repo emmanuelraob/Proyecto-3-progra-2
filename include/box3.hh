@@ -29,4 +29,9 @@ class Box3{
         void build_all_box_levels(Box3& box, int current_lvl, int final_lvl, int dimension);
 };
 
+<<<<<<< HEAD
+=======
+};
+
+>>>>>>> 4053abe8edac28c44671b26ff793c51a257bfc4d
 #endif
