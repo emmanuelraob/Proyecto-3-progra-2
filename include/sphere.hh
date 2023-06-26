@@ -10,12 +10,13 @@ public:
   sphere(point3 cen, double r, shared_ptr<material> m);
 
   virtual bool hit(const ray &r, double t_min, double t_max,
-                   hit_record &rec) const override;
+                   hit_record &rec) override;
               
   virtual point3 get_center() const override;
 
   virtual void set_closest_point(point3 point) override;
-
+  
+  double get_distance_from_center();
 public:
   point3 center;
   double radius;

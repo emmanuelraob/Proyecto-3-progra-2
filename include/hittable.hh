@@ -20,11 +20,13 @@ struct hit_record {
 class hittable {
 public:
   virtual bool hit(const ray &r, double t_min, double t_max,
-                   hit_record &rec) const = 0;
+                   hit_record &rec) = 0;
 
   virtual point3 get_center() const = 0;
 
   virtual void set_closest_point(point3 point) = 0;
+
+  virtual double get_distance_from_center() = 0;
 };
 
 #endif

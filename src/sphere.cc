@@ -4,7 +4,7 @@ sphere::sphere(point3 cen, double r, shared_ptr<material> m)
     : center(cen), radius(r), mat_ptr(m){};
 
 bool sphere::hit(const ray &r, double t_min, double t_max,
-                 hit_record &rec) const {
+                 hit_record &rec) {
   vec3 oc = r.origin() - center;
   auto a = r.direction().length_squared();
   auto half_b = dot(oc, r.direction());
@@ -38,4 +38,8 @@ point3 sphere::get_center() const{
 
 void sphere::set_closest_point(point3 point){
   closest_point_camera = point;
+}
+
+double sphere::get_distance_from_center(){
+  return radius;
 }

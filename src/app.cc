@@ -3,7 +3,7 @@
 using namespace std;
 
 
-color app::ray_color(const ray& r, const hittable& world, int depth) {
+color app::ray_color(const ray& r, hittable& world, int depth) {
     hit_record rec;
 
     // If we've exceeded the ray bounce limit, no more light is gathered.
@@ -87,7 +87,20 @@ void app::run(){
 
     // World
     auto world = random_scene();
+    shared_ptr<hittable> xSmallSphere =  world.smallerSphere(0);
+    shared_ptr<hittable> xBigSphere =  world.biggerSphere(0);
+    shared_ptr<hittable> ySmallSphere =  world.smallerSphere(1);
+    shared_ptr<hittable> yBigSphere =  world.biggerSphere(1);
+    shared_ptr<hittable> zSmallSphere =  world.smallerSphere(2);
+    shared_ptr<hittable> zBigSphere =  world.biggerSphere(2);
+    double xSmall = xSmallSphere->get_center()[0] - xSmallSphere->get_distance_from_center();
+    double ySmall = ySmallSphere->get_center()[1] - ySmallSphere->get_distance_from_center();
+    double zSmall = zSmallSphere->get_center()[2] - zSmallSphere->get_distance_from_center();
+    double xBig = xBigSphere->get_center()[0] + xBigSphere->get_distance_from_center();
+    double yBig = yBigSphere->get_center()[1] + yBigSphere->get_distance_from_center();
+    double zBig = zBigSphere->get_center()[2] + zBigSphere->get_distance_from_center();
 
+    world.first_box = Box3(point3(xSmall, ySmall, zSmall), point3(xBig, yBig, zBig));
     // Camera
     
     point3 lookfrom(13,2,3);

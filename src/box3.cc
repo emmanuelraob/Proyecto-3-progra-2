@@ -51,7 +51,7 @@ void Box3::build_box(Box3& first_box, vector<hittable*> objects){
     }
 }
 
-bool Box3::does_ray_hit(ray& r){
+bool Box3::does_ray_hit(const ray& r){
     float tmin, tmax, tymin, tymax, tzmin, tzmax;
     
     tmin = (bounds[r.sign[0]].x() - r.orig.x()) * r.invdir.x();

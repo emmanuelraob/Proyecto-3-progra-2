@@ -18,7 +18,7 @@ using namespace std;
 class app{
 	
 	public:
-		color ray_color(const ray& r, const hittable& world, int depth);
+		color ray_color(const ray& r, hittable& world, int depth);
 		hittable_list random_scene();
 		void run(); 
 };
