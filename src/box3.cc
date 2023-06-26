@@ -11,7 +11,7 @@ bool Box3::is_hittable_inside(hittable* object){
     return true;
 }
 
-void build_all_box_levels(Box3& box, int current_lvl, int final_lvl, int dimension){
+void Box3::build_all_box_levels(Box3& box, int current_lvl, int final_lvl, int dimension){
     if (current_lvl < final_lvl){
         point3 upper_bound = box.bounds[1];
         point3 lower_bound = box.bounds[0];
@@ -28,7 +28,7 @@ void build_all_box_levels(Box3& box, int current_lvl, int final_lvl, int dimensi
     }
 }
 
-void add_hittable(Box3& box, hittable* object, int dimension){
+void Box3::add_hittable(Box3& box, hittable* object, int dimension){
     
 
     if (box.half_left != nullptr && box.half_left->is_hittable_inside(object)){

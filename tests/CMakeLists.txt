@@ -44,6 +44,7 @@ add_executable(raytracer_test
     ${RayTracer_SOURCE_DIR}/src/vec3.cc
     app_test.cc
     ${RayTracer_SOURCE_DIR}/src/app.cc
+    ${RayTracer_SOURCE_DIR}/src/box3.cc
 )
 
 # Además, se añaden los archivos de encabezados

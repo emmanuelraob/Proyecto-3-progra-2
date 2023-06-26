@@ -1,3 +1,6 @@
+#ifndef BOX3_HH
+#define BOX3_HH
+
 #include <vec3.hh>
 #include <hittable.hh>
 #include <vector>
@@ -23,5 +26,7 @@ class Box3{
         void add_hittable(Box3& box, hittable* object, int dimension);
         void build_box(Box3& first_box, vector<hittable*> objects);
         bool does_ray_hit(const ray& r);
-
+        void build_all_box_levels(Box3& box, int current_lvl, int final_lvl, int dimension);
 };
+
+#endif

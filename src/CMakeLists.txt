@@ -12,6 +12,7 @@ add_executable(RayTracer
     hittable.cc
     material.cc
     sphere.cc
+    box3.cc
 )
 
 target_include_directories(RayTracer PUBLIC ../include)
