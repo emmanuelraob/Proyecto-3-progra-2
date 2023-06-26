@@ -1,3 +1,6 @@
+#ifndef BOX3_HH
+#define BOX3_HH
+
 #include <vec3.hh>
 #include <hittable.hh>
 #include <vector>
@@ -25,3 +28,5 @@ class Box3{
         bool does_ray_hit(const ray& r);
 
 };
+
+#endif
